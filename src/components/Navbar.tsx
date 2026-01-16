@@ -10,7 +10,9 @@ import {
   Briefcase,
   MapPin,
   HelpCircle,
-  UserPlus
+  UserPlus,
+  LogOut,
+  Shield
 } from "lucide-react";
 import {
   Sheet,
@@ -19,10 +21,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAdmin, signOut } = useAuth();
 
   const menuItems = [
     { label: "الرئيسية", path: "/", icon: Home },
@@ -34,6 +38,12 @@ const Navbar = () => {
 
   const handleNavigation = (path: string) => {
     navigate(path);
+    setIsOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
     setIsOpen(false);
   };
 
@@ -73,21 +83,46 @@ const Navbar = () => {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden lg:flex items-center gap-3">
-            <Button 
-              variant="ghost"
-              className="font-semibold hover:bg-primary/10"
-              onClick={() => handleNavigation("/auth")}
-            >
-              <LogIn className="w-4 h-4 ml-2" />
-              دخول
-            </Button>
-            <Button 
-              className="bg-gradient-primary hover:shadow-glow transition-all font-bold"
-              onClick={() => handleNavigation("/join")}
-            >
-              <UserPlus className="w-4 h-4 ml-2" />
-              انضم كحرفي
-            </Button>
+            {user ? (
+              <>
+                {isAdmin && (
+                  <Button 
+                    variant="outline"
+                    className="font-semibold gap-2 border-primary text-primary hover:bg-primary hover:text-white"
+                    onClick={() => handleNavigation("/admin")}
+                  >
+                    <Shield className="w-4 h-4" />
+                    لوحة التحكم
+                  </Button>
+                )}
+                <Button 
+                  variant="ghost"
+                  className="font-semibold hover:bg-destructive/10 hover:text-destructive"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="w-4 h-4 ml-2" />
+                  خروج
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  variant="ghost"
+                  className="font-semibold hover:bg-primary/10"
+                  onClick={() => handleNavigation("/auth")}
+                >
+                  <LogIn className="w-4 h-4 ml-2" />
+                  دخول
+                </Button>
+                <Button 
+                  className="bg-gradient-primary hover:shadow-glow transition-all font-bold"
+                  onClick={() => handleNavigation("/join")}
+                >
+                  <UserPlus className="w-4 h-4 ml-2" />
+                  انضم كحرفي
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -127,21 +162,46 @@ const Navbar = () => {
               </div>
 
               <div className="mt-8 space-y-3">
-                <Button 
-                  variant="outline"
-                  className="w-full justify-start gap-3 h-12 font-semibold"
-                  onClick={() => handleNavigation("/auth")}
-                >
-                  <LogIn className="w-5 h-5" />
-                  دخول
-                </Button>
-                <Button 
-                  className="w-full justify-start gap-3 h-12 bg-gradient-primary font-bold"
-                  onClick={() => handleNavigation("/join")}
-                >
-                  <UserPlus className="w-5 h-5" />
-                  انضم كحرفي
-                </Button>
+                {user ? (
+                  <>
+                    {isAdmin && (
+                      <Button 
+                        variant="outline"
+                        className="w-full justify-start gap-3 h-12 font-semibold border-primary text-primary"
+                        onClick={() => handleNavigation("/admin")}
+                      >
+                        <Shield className="w-5 h-5" />
+                        لوحة التحكم
+                      </Button>
+                    )}
+                    <Button 
+                      variant="outline"
+                      className="w-full justify-start gap-3 h-12 font-semibold text-destructive border-destructive hover:bg-destructive hover:text-white"
+                      onClick={handleSignOut}
+                    >
+                      <LogOut className="w-5 h-5" />
+                      تسجيل خروج
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button 
+                      variant="outline"
+                      className="w-full justify-start gap-3 h-12 font-semibold"
+                      onClick={() => handleNavigation("/auth")}
+                    >
+                      <LogIn className="w-5 h-5" />
+                      دخول
+                    </Button>
+                    <Button 
+                      className="w-full justify-start gap-3 h-12 bg-gradient-primary font-bold"
+                      onClick={() => handleNavigation("/join")}
+                    >
+                      <UserPlus className="w-5 h-5" />
+                      انضم كحرفي
+                    </Button>
+                  </>
+                )}
               </div>
             </SheetContent>
           </Sheet>
